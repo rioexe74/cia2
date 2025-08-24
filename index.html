@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clitoral Intelligence Agency</title>
+    
+    <!-- Chosen Palette: Retro-Modern Government Parody (Navy, Cream, Red, Grey, Gold) -->
+    <!-- Application Structure Plan: A linear, single-page narrative structure guides the user through immersive, themed sections. The flow starts with a cinematic hero section, moves to the mission, provides interactive training via a declassified 'Field Manual' and a terminal-style quiz, shows testimonials, and concludes with a formal footer. This structure was chosen to build the parody's world and humor sequentially, maximizing user engagement and leading them towards the core interactive quiz and its shareable certificate reward. -->
+    <!-- Visualization & Content Choices: The design uses heavily styled HTML/CSS to create visual metaphors (radar screens, file folders, terminals) instead of charts. Key interactions include a smooth-scroll button, a typewriter text effect (TypeIt.js), a tabbed interface for the 'Field Manual', an interactive quiz, and a testimonial slider. The capstone interaction is the client-side generation of a downloadable certificate (html2canvas.js), designed to be a viral, shareable asset. These choices prioritize immersion and thematic consistency over traditional data visualization. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/typeit@8.7.1/dist/index.umd.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        body {
+            background-color: #F5F5F0;
+            color: #333F48;
+            font-family: 'Roboto Mono', monospace;
+            overflow-x: hidden;
+        }
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+        }
+        .font-headline { font-family: 'Playfair Display', serif; }
+        .font-body { font-family: 'Roboto Mono', monospace; }
+
+        .scan-lines::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.03));
+            background-size: 100% 3px, 4px 100%;
+            pointer-events: none;
+            z-index: 9999;
+            animation: scan 7s linear infinite;
+        }
+        @keyframes scan {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 100vh; }
+        }
+
+        .radar-bg {
+            position: relative;
+            background: #0C2340;
+            overflow: hidden;
+        }
+        .radar-bg::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: conic-gradient(from 0deg at 50% 50%, transparent 0%, transparent 75%, rgba(19, 239, 19, 0.2) 100%);
+            animation: radar-sweep 5s linear infinite;
+            transform-origin: center center;
+        }
+        .radar-grid {
+            background-image:
+                linear-gradient(rgba(19, 239, 19, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(19, 239, 19, 0.1) 1px, transparent 1px);
+            background-size: 4rem 4rem;
+        }
+        @keyframes radar-sweep {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .console-switch {
+            background: #BF0A30;
+            border: 2px solid #333F48;
+            box-shadow: 0 5px 0 #333F48, inset 0 3px 5px rgba(0,0,0,0.4);
+            transition: all 0.1s ease-in-out;
+        }
+        .console-switch:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #333F48, inset 0 3px 5px rgba(0,0,0,0.4);
+        }
+
+        .nav-link {
+            position: relative;
+            transition: color 0.3s;
+        }
+        .nav-link::after {
+            content: '_';
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: -8px;
+            color: #13ef13;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .nav-link:hover::after {
+            opacity: 1;
+        }
+        .flicker {
+            animation: flicker-anim 2s linear infinite;
+        }
+        @keyframes flicker-anim {
+            0%, 100% { opacity: 1; text-shadow: 0 0 2px #BF0A30; }
+            50% { opacity: 0.7; text-shadow: none; }
+            25%, 75% { opacity: 0.9; }
+        }
+        
+        .paper-texture {
+            background-color: #F5F5F0;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%23333F48' fill-opacity='0.02' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'%3E%3C/path%3E%3C/svg%3E");
+        }
+
+        .stamp {
+            border: 4px double #BF0A30;
+            color: #BF0A30;
+            font-weight: bold;
+            padding: 0.5rem 1rem;
+            transform: rotate(-15deg);
+            opacity: 0.8;
+        }
+
+        .tab-content { display: none; }
+        .tab-active { display: block; }
+        .tab-button.active {
+            background-color: #F5F5F0;
+            transform: translateY(-2px);
+            z-index: 10;
+        }
+
+        .terminal {
+            background-color: #0A111A;
+            color: #13ef13;
+            text-shadow: 0 0 5px #13ef13;
+            padding: 1.5rem;
+            border: 2px solid #333F48;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.7);
+            min-height: 400px;
+        }
+        .terminal-input::after {
+            content: '█';
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+        .terminal-option:hover {
+            background-color: #13ef13;
+            color: #0A111A;
+        }
+        
+        #certificate-wrapper {
+            background-color: #F5F5F0;
+            border: 10px solid #0C2340;
+            padding: 2rem;
+            font-family: 'Playfair Display', serif;
+            color: #0C2340;
+        }
+        
+        .floppy-disk {
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+    </style>
+</head>
+<body class="scan-lines">
+
+    <div id="loader" class="fixed inset-0 bg-[#0C2340] z-[10000] flex flex-col items-center justify-center font-body text-white">
+        <p>ESTABLISHING SECURE CONNECTION...</p>
+        <div class="w-1/2 mt-4 bg-[#333F48] h-4 border-2 border-white">
+            <div id="loader-bar" class="bg-white h-full" style="width: 0%;"></div>
+        </div>
+        <p class="mt-2" id="loader-text">[                    ]</p>
+    </div>
+
+    <!-- Hero Section -->
+    <header id="home" class="h-screen w-screen flex items-center justify-center radar-bg">
+        <div class="absolute inset-0 radar-grid"></div>
+        <div class="relative text-center text-[#F5F5F0] z-10 p-4">
+            <div class="mx-auto mb-8 w-40 h-40 rounded-full bg-[#0C2340] border-4 border-[#C99700] flex items-center justify-center shadow-2xl" style="box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 0 0 15px #C99700;">
+                <span class="font-headline text-5xl text-[#C99700]" style="filter: drop-shadow(0 0 5px #C99700);">⚲</span>
+            </div>
+            <h1 class="font-headline text-5xl md:text-7xl lg:text-8xl drop-shadow-lg">Clitoral Intelligence Agency</h1>
+            <p class="font-body mt-4 text-lg md:text-xl text-[#C99700]">Auxilio Ad Inveniendum</p>
+            <a href="#mission" class="inline-block mt-12 px-8 py-4 font-body text-xl uppercase tracking-widest text-white rounded-md console-switch">
+                Access Mainframe ▼
+            </a>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav id="navbar" class="sticky top-0 bg-[#0C2340] text-[#F5F5F0] z-50 shadow-lg transition-all duration-300">
+        <div class="container mx-auto px-4">
+            <ul class="flex justify-center items-center space-x-4 md:space-x-8 h-16 font-body uppercase text-sm md:text-base">
+                <li><a href="#home" class="nav-link">Home</a></li>
+                <li><a href="#mission" class="nav-link">Mission</a></li>
+                <li><a href="#manual" class="nav-link">Field Manual</a></li>
+                <li><a href="#training" class="nav-link">Training</a></li>
+                <li><a href="#briefing" class="nav-link">Briefing</a></li>
+                <li><a href="#footer" class="nav-link flicker">[Secure Link]</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-16 md:py-24">
+
+        <!-- The Mission Section -->
+        <section id="mission" class="paper-texture p-8 md:p-12 border-4 border-[#333F48] shadow-2xl min-h-[60vh] relative" style="background-image: url('empty\ lab3.jpg'); background-size: cover; background-position: center; background-blend-mode: multiply; background-color: #F5F5F0;">
+            <div class="absolute inset-0 pointer-events-none" style="background: linear-gradient(135deg, rgba(12,35,64,0.65) 0%, rgba(201,151,0,0.08) 100%);"></div>
+            <div class="relative grid md:grid-cols-2 gap-8 md:gap-12 items-center z-10">
+                <div class="relative">
+                    <img src="baji.png" alt="A stylized photo of a CIA agent looking at a screen." class="w-full h-auto border-4 border-[#0C2340]">
+                    <div class="absolute top-4 -left-8 stamp">
+                        TOP SECRET
+                    </div>
+                </div>
+                <div>
+                    <h2 class="font-headline text-4xl md:text-5xl text-[#F5F5F0] mb-6">The Mission</h2>
+                    <div id="mission-text" class="font-body text-lg leading-relaxed space-y-4" style="color: #F5F5F0; text-shadow: 0 2px 8px #0C2340, 0 0 2px #333F48;"></div>
+                        <!-- Typewriter text will be injected here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Field Manual Section -->
+        <section id="manual" class="mt-16 md:mt-24">
+            <h2 class="font-headline text-4xl md:text-5xl text-center text-[#0C2340] mb-8">Field Manual (Declassified)</h2>
+            <div class="bg-[#0C2340] p-1 rounded-t-lg">
+                <div id="tab-buttons" class="flex space-x-1">
+                    <button data-tab="anatomy" class="tab-button active font-body uppercase px-6 py-3 bg-[#333F48] text-white rounded-t-lg transition-all duration-200">File 01: Anatomy</button>
+                    <button data-tab="navigation" class="tab-button font-body uppercase px-6 py-3 bg-[#333F48] text-white rounded-t-lg transition-all duration-200">File 02: Navigation</button>
+                    <button data-tab="failures" class="tab-button font-body uppercase px-6 py-3 bg-[#333F48] text-white rounded-t-lg transition-all duration-200">File 03: Failures</button>
+                </div>
+            </div>
+            <div class="paper-texture p-8 md:p-12 border-4 border-[#0C2340] shadow-2xl -mt-px">
+                <div id="anatomy" class="tab-content tab-active">
+                    <h3 class="font-headline text-3xl text-[#0C2340] mb-4">Anatomy of the Target Zone</h3>
+                    <p class="mb-8">Hover over designated points on the diagram for tactical intelligence.</p>
+                    <div class="relative w-full max-w-lg mx-auto aspect-square bg-cream-100 rounded-full border-2 border-dashed border-[#333F48] p-4">
+                        <div class="group absolute top-[10%] left-1/2 -translate-x-1/2 w-24 h-8">
+                            <div class="w-full h-full bg-[#BF0A30]/20 rounded-full cursor-pointer border-2 border-transparent hover:border-[#BF0A30]"></div>
+                            <div class="tooltip hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 bg-[#0C2340] text-white text-sm px-3 py-1 rounded-md shadow-lg w-48 text-center z-10">
+                                <strong>Primary Target:</strong> Highly sensitive. Proceed with caution and enthusiasm.
+                            </div>
+                        </div>
+                        <div class="group absolute top-1/4 left-[20%] w-16 h-16">
+                            <div class="w-full h-full bg-[#C99700]/20 rounded-full cursor-pointer border-2 border-transparent hover:border-[#C99700]"></div>
+                            <div class="tooltip hidden group-hover:block absolute bottom-full right-0 bg-[#0C2340] text-white text-sm px-3 py-1 rounded-md shadow-lg w-48 text-center z-10">
+                                <strong>Outer Defenses:</strong> Provide protective cover. Gentle reconnaissance recommended.
+                            </div>
+                        </div>
+                        <div class="group absolute top-1/4 right-[20%] w-16 h-16">
+                             <div class="w-full h-full bg-[#C99700]/20 rounded-full cursor-pointer border-2 border-transparent hover:border-[#C99700]"></div>
+                             <div class="tooltip hidden group-hover:block absolute bottom-full left-0 bg-[#0C2340] text-white text-sm px-3 py-1 rounded-md shadow-lg w-48 text-center z-10">
+                                <strong>Inner Sanctum:</strong> Sensitive area. Approach with respect and indirect maneuvers.
+                            </div>
+                        </div>
+                        <div class="group absolute bottom-[15%] left-1/2 -translate-x-1/2 w-20 h-10">
+                            <div class="w-full h-full bg-[#333F48]/20 rounded-lg cursor-pointer border-2 border-transparent hover:border-[#333F48]"></div>
+                            <div class="tooltip hidden group-hover:block absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-[#0C2340] text-white text-sm px-3 py-1 rounded-md shadow-lg w-48 text-center z-10">
+                                <strong>Support Structure:</strong> Not a primary objective, but crucial for overall mission success.
+                            </div>
+                        </div>
+                        <p class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-headline text-xl text-[#333F48]/50">CLASSIFIED DIAGRAM</p>
+                    </div>
+                </div>
+                <div id="navigation" class="tab-content">
+                    <h3 class="font-headline text-3xl text-[#0C2340] mb-4">Navigation Protocols</h3>
+                    <p>Standard operating procedure involves a multi-stage approach. Initial reconnaissance should be followed by targeted, rhythmic application of pressure. Communication with the subject is paramount. Monitor feedback channels for signs of mission success. Remember, every mission is unique.</p>
+                </div>
+                <div id="failures" class="tab-content">
+                    <h3 class="font-headline text-3xl text-[#0C2340] mb-4">Common Mission Failures</h3>
+                    <p>Intelligence suggests most failures result from one of the following: 1. Rushing the objective. 2. Failure to adapt tactics based on real-time feedback. 3. Focusing on a single approach vector. 4. <span class="bg-[#333F48] text-[#333F48]">Insufficient lubrication</span>. A successful agent is patient, observant, and versatile.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Agent Training Simulation Section -->
+        <section id="training" class="mt-16 md:mt-24">
+            <h2 class="font-headline text-4xl md:text-5xl text-center text-[#0C2340] mb-8">Agent Training Simulation</h2>
+            <div id="terminal" class="terminal font-body">
+                <div id="terminal-output"></div>
+                <div id="terminal-input-line" class="flex items-center">
+                    <span>&gt;</span>
+                    <div id="terminal-input" class="flex-1 ml-2"></div>
+                </div>
+            </div>
+            <div id="certificate-modal" class="hidden fixed inset-0 bg-black/70 z-[100] flex items-center justify-center p-4">
+                <div class="bg-white p-8 rounded-lg shadow-2xl text-center max-w-lg w-full">
+                    <h3 class="font-headline text-3xl text-[#0C2340]">Clearance Granted</h3>
+                    <p class="my-4">Enter your agent name to generate your official certificate.</p>
+                    <input type="text" id="agent-name-input" placeholder="AGENT NAME" class="w-full p-2 border-2 border-[#333F48] font-body text-center">
+                    <button id="generate-cert-btn" class="mt-4 w-full bg-[#0C2340] text-white px-6 py-3 font-body uppercase tracking-wider hover:bg-[#333F48] transition-colors">Generate Certificate</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Director's Briefing Section -->
+        <section id="briefing" class="mt-16 md:mt-24">
+            <h2 class="font-headline text-4xl md:text-5xl text-center text-[#0C2340] mb-8">Director's Briefing</h2>
+            <div class="relative w-full max-w-2xl mx-auto p-8 bg-[#333F48] rounded-lg shadow-2xl overflow-hidden">
+                <div id="testimonial-slider" class="flex transition-transform duration-500 ease-in-out">
+                    <!-- Testimonials will be injected here -->
+                </div>
+                <button id="prev-btn" class="absolute top-1/2 left-4 -translate-y-1/2 bg-[#BF0A30] text-white w-10 h-10 rounded-full text-2xl">&lt;</button>
+                <button id="next-btn" class="absolute top-1/2 right-4 -translate-y-1/2 bg-[#BF0A30] text-white w-10 h-10 rounded-full text-2xl">&gt;</button>
+                 <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-48 h-4 bg-black rounded-b-md border-t-2 border-gray-500 flex items-center justify-end px-2">
+                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer id="footer" class="bg-[#0C2340] text-[#F5F5F0] py-12 mt-16 md:mt-24 font-body text-sm">
+        <div class="container mx-auto px-4 text-center text-gray-400">
+            <p>Property of the Clitoral Intelligence Agency. Unauthorized access is strictly prohibited.</p>
+            <p>&copy; 1969 - 2025 C.I.A. All Rights Reserved.</p>
+            <div class="mt-4 flex justify-center items-center space-x-4">
+                <span id="easter-egg" class="cursor-pointer p-1">[ 0.306 ]</span>
+                <span>|</span>
+                <span>[TRANSMISSION END]</span>
+            </div>
+            <div id="easter-egg-tooltip" class="hidden absolute bg-white text-black p-2 rounded shadow-lg text-xs w-48 text-center">
+                Statistical average time (in minutes) agents spend searching before requesting intel.
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Mute Button -->
+    <button id="mute-btn" class="fixed bottom-4 right-4 bg-[#C99700] text-[#0C2340] w-12 h-12 rounded-full flex items-center justify-center shadow-lg z-50 text-2xl">🔊</button>
+
+    <!-- Certificate Template (Hidden) -->
+    <div id="certificate-wrapper" class="hidden absolute -left-[9999px] w-[800px]">
+        <div class="text-center p-4">
+            <div class="inline-block mx-auto mb-4 w-24 h-24 rounded-full bg-[#0C2340] border-4 border-[#C99700] flex items-center justify-center">
+                <span class="font-headline text-4xl text-[#C99700]">⚲</span>
+            </div>
+            <h2 class="text-5xl font-headline">Certificate of Proficiency</h2>
+            <p class="text-xl mt-4">This is to certify that</p>
+            <p id="cert-name" class="text-4xl font-headline my-6 border-b-2 border-dashed border-[#0C2340]">AGENT NAME</p>
+            <p class="text-xl">has successfully completed the Agent Training Simulation and is hereby granted the rank of</p>
+            <p id="cert-rank" class="text-3xl font-headline mt-2 text-[#BF0A30]">Director of Operations</p>
+            <div class="mt-12 flex justify-between items-end">
+                <div class="text-left">
+                    <p class="border-t-2 border-[#333F48] pt-1">Director's Signature</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-sm">Issued: <span id="cert-date"></span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio Elements -->
+    <audio id="click-sound" src="https://cdn.freesound.org/previews/253/253177_4373875-lq.mp3" preload="auto"></audio>
+    <audio id="type-sound" src="https://cdn.freesound.org/previews/573/573381_4373875-lq.mp3" loop preload="auto"></audio>
+    <audio id="success-sound" src="https://cdn.freesound.org/previews/142/142608_1843196-lq.mp3" preload="auto"></audio>
+    <audio id="denied-sound" src="https://cdn.freesound.org/previews/142/142610_1843196-lq.mp3" preload="auto"></audio>
+    <audio id="floppy-sound" src="https://cdn.freesound.org/previews/573/573489_4373875-lq.mp3" preload="auto"></audio>
+
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- Global State & Elements ---
+        let isMuted = false;
+        const muteBtn = document.getElementById('mute-btn');
+        const sounds = {
+            click: document.getElementById('click-sound'),
+            type: document.getElementById('type-sound'),
+            success: document.getElementById('success-sound'),
+            denied: document.getElementById('denied-sound'),
+            floppy: document.getElementById('floppy-sound'),
+        };
+
+        function playSound(sound) {
+            if (!isMuted && sounds[sound]) {
+                sounds[sound].currentTime = 0;
+                sounds[sound].play().catch(e => {});
+            }
+        }
+        
+        function stopSound(sound) {
+             if (sounds[sound]) {
+                sounds[sound].pause();
+                sounds[sound].currentTime = 0;
+            }
+        }
+
+        muteBtn.addEventListener('click', () => {
+            isMuted = !isMuted;
+            muteBtn.textContent = isMuted ? '🔇' : '🔊';
+            Object.values(sounds).forEach(s => s.muted = isMuted);
+        });
+        
+        document.querySelectorAll('a, button').forEach(el => {
+            el.addEventListener('click', () => playSound('click'));
+        });
+
+        // --- Loader ---
+        const loader = document.getElementById('loader');
+        const loaderBar = document.getElementById('loader-bar');
+        const loaderText = document.getElementById('loader-text');
+        let loadProgress = 0;
+        const interval = setInterval(() => {
+            loadProgress += Math.random() * 10;
+            if (loadProgress > 100) loadProgress = 100;
+            loaderBar.style.width = loadProgress + '%';
+            const filled = Math.floor(loadProgress / 5);
+            const empty = 20 - filled;
+            loaderText.textContent = `[${'='.repeat(filled)}${' '.repeat(empty)}]`;
+            if (loadProgress === 100) {
+                clearInterval(interval);
+                setTimeout(() => {
+                    loader.style.transition = 'opacity 0.5s';
+                    loader.style.opacity = '0';
+                    setTimeout(() => loader.style.display = 'none', 500);
+                }, 500);
+            }
+        }, 200);
+
+        // --- Navbar Scroll Effect ---
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > window.innerHeight - 100) {
+                navbar.classList.add('bg-opacity-90', 'backdrop-blur-sm');
+            } else {
+                navbar.classList.remove('bg-opacity-90', 'backdrop-blur-sm');
+            }
+        });
+
+        // --- Mission Section Typewriter ---
+        const missionTextElement = document.getElementById('mission-text');
+        if (missionTextElement) {
+            const observer = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting) {
+                    new TypeIt("#mission-text", {
+                        speed: 50,
+                        startDelay: 900,
+                        html: true,
+                        afterComplete: () => stopSound('type'),
+                        beforeString: () => playSound('type'),
+                    })
+                    .type('Our primary directive is the location, identification, and successful engagement of the clitoris.', { delay: 300 })
+                    .break()
+                    .type('Operating with discretion and precision, our agents are trained to navigate complex anatomical landscapes to achieve peak operational outcomes. We counter misinformation and historical obscurity with empirical data and proven field techniques.')
+                    .break()
+                    .type('The subject\'s partner reported <span class="bg-[#333F48] text-[#333F48]">unprecedented</span> satisfactory results.')
+                    .go();
+                    observer.disconnect();
+                }
+            }, { threshold: 0.5 });
+            observer.observe(missionTextElement);
+        }
+
+        // --- Field Manual Tabs ---
+        const tabButtons = document.getElementById('tab-buttons');
+        const tabContents = document.querySelectorAll('.tab-content');
+        if (tabButtons) {
+            tabButtons.addEventListener('click', (e) => {
+                if (e.target.tagName === 'BUTTON') {
+                    const tab = e.target.dataset.tab;
+                    
+                    tabButtons.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
+                    e.target.classList.add('active');
+
+                    tabContents.forEach(content => {
+                        content.classList.remove('tab-active');
+                        if (content.id === tab) {
+                            content.classList.add('tab-active');
+                        }
+                    });
+                }
+            });
+        }
+
+        // --- Agent Training Terminal ---
+        const terminalOutput = document.getElementById('terminal-output');
+        const terminalInput = document.getElementById('terminal-input');
+        const quiz = [
+            {
+                question: "What is the primary objective of any C.I.A. field operation?",
+                options: { A: "Speed", B: "Pleasure", C: "Discretion" },
+                answer: "B"
+            },
+            {
+                question: "Optimal approach vector is typically:",
+                options: { A: "Direct and forceful", B: "Indirect and exploratory", C: "Random and unpredictable" },
+                answer: "B"
+            },
+            {
+                question: "Mission success is primarily defined by:",
+                options: { A: "Agent satisfaction", B: "Completion of checklist", C: "Subject feedback (orgasm)" },
+                answer: "C"
+            }
+        ];
+        let currentQuestion = 0;
+        let awaitingInput = false;
+
+        function terminalPrint(text, isInput = false) {
+            const line = document.createElement('p');
+            line.innerHTML = text;
+            if (isInput) line.classList.add('text-yellow-400');
+            terminalOutput.appendChild(line);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        function askQuestion() {
+            if (currentQuestion >= quiz.length) {
+                terminalPrint("> TRAINING COMPLETE. ANALYZING RESULTS...");
+                setTimeout(() => {
+                    terminalPrint("> ANALYSIS COMPLETE. CLEARANCE GRANTED.");
+                    playSound('success');
+                    document.getElementById('certificate-modal').classList.remove('hidden');
+                }, 2000);
+                return;
+            }
+            awaitingInput = true;
+            const q = quiz[currentQuestion];
+            terminalPrint(`> QUESTION ${currentQuestion + 1}: ${q.question}`);
+            Object.entries(q.options).forEach(([key, value]) => {
+                const optionEl = document.createElement('a');
+                optionEl.href = "#";
+                optionEl.textContent = `  [${key}] ${value}`;
+                optionEl.classList.add('block', 'terminal-option', 'cursor-pointer');
+                optionEl.dataset.answer = key;
+                optionEl.onclick = (e) => {
+                    e.preventDefault();
+                    if (awaitingInput) handleAnswer(key);
+                };
+                terminalOutput.appendChild(optionEl);
+            });
+            terminalInput.textContent = "SELECT OPTION [A/B/C]...";
+        }
+
+        function handleAnswer(answer) {
+            awaitingInput = false;
+            terminalInput.textContent = "";
+            const q = quiz[currentQuestion];
+            const selectedOption = terminalOutput.querySelector(`[data-answer="${answer}"]`);
+            if(selectedOption) selectedOption.classList.add('bg-yellow-400', 'text-black');
+
+            terminalPrint(`> INPUT RECEIVED: ${answer}`, true);
+            
+            setTimeout(() => {
+                if (answer.toUpperCase() === q.answer) {
+                    terminalPrint("> AFFIRMATIVE. PARAMETER IS CORRECT.");
+                    playSound('success');
+                    currentQuestion++;
+                } else {
+                    terminalPrint("> NEGATIVE. INCORRECT PARAMETER. REVIEW FIELD MANUAL.");
+                    playSound('denied');
+                }
+                setTimeout(askQuestion, 1500);
+            }, 1000);
+        }
+
+        function startTraining() {
+            terminalPrint("INITIATING TRAINING SEQUENCE...");
+            setTimeout(() => {
+                terminalPrint("LOADING PROTOCOLS...");
+                setTimeout(askQuestion, 1500);
+            }, 1000);
+        }
+        
+        const terminalElement = document.getElementById('terminal');
+        const startTrainingObserver = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                terminalPrint("> INITIATE TRAINING SEQUENCE? [Y/N]");
+                const yesBtn = document.createElement('a');
+                yesBtn.href = "#";
+                yesBtn.textContent = "  [Y] YES";
+                yesBtn.classList.add('block', 'terminal-option', 'cursor-pointer');
+                
+                const noBtn = document.createElement('a');
+                noBtn.href = "#";
+                noBtn.textContent = "  [N] NO";
+                noBtn.classList.add('block', 'terminal-option', 'cursor-pointer');
+
+                yesBtn.onclick = (e) => {
+                    e.preventDefault();
+                    terminalOutput.removeChild(yesBtn);
+                    terminalOutput.removeChild(noBtn);
+                    startTraining();
+                };
+                noBtn.onclick = (e) => {
+                    e.preventDefault();
+                    terminalPrint("> TRAINING ABORTED BY USER.");
+                };
+                terminalOutput.appendChild(yesBtn);
+                terminalOutput.appendChild(noBtn);
+                startTrainingObserver.disconnect();
+            }
+        }, { threshold: 0.5 });
+        startTrainingObserver.observe(terminalElement);
+
+        // --- Certificate Generation ---
+        const generateCertBtn = document.getElementById('generate-cert-btn');
+        generateCertBtn.addEventListener('click', () => {
+            const agentName = document.getElementById('agent-name-input').value || 'CLASSIFIED';
+            const certName = document.getElementById('cert-name');
+            const certDate = document.getElementById('cert-date');
+            
+            certName.textContent = agentName.toUpperCase();
+            certDate.textContent = new Date().toLocaleDateString();
+
+            const certificateWrapper = document.getElementById('certificate-wrapper');
+            certificateWrapper.classList.remove('hidden');
+
+            html2canvas(certificateWrapper, { scale: 2 }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `CIA-Certificate-${agentName.replace(/\s/g, '_')}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                certificateWrapper.classList.add('hidden');
+                document.getElementById('certificate-modal').classList.add('hidden');
+                terminalPrint("> PRINTING SECURITY CLEARANCE... COMPLETE.");
+                terminalPrint("> CERTIFICATE DOWNLOADED. MISSION ACCOMPLISHED, AGENT.");
+            });
+        });
+
+        // --- Testimonial Slider ---
+        const testimonials = [
+            {
+                quote: "My partner's performance increased by 200%. It's like they had access to classified information.",
+                author: "Agent Dani Daniels",
+                img: "chotyMammy.jpg"
+            },
+            {
+                quote: "I used to think the mission was impossible. The C.I.A. provided the map and the tools. Game changer.",
+                author: "Agent LiahGoti",
+                img: "LiahGoti.jpg"
+            },
+            {
+                quote: "The training simulation was incredibly realistic. My success rate in the field is now at an all-time high.",
+                author: "Agent PussyFighter",
+                img: "pussyFighter.jpg"
+            }
+        ];
+        const slider = document.getElementById('testimonial-slider');
+        let currentSlide = 0;
+
+        // Clear previous slides if any
+        slider.innerHTML = "";
+
+        testimonials.forEach((t, i) => {
+            const slide = document.createElement('div');
+            slide.className = 'w-full flex-shrink-0 p-8 floppy-disk';
+            slide.innerHTML = `
+                <div class="bg-[#F5F5F0] p-6 rounded-md shadow-inner h-full flex flex-col justify-center items-center">
+                    <img src="${t.img}" alt="${t.author}" class="w-24 h-24 object-cover rounded-full border-4 border-[#C99700] mb-4 shadow-lg">
+                    <p class="font-body text-center text-[#333F48] italic">"${t.quote}"</p>
+                    <p class="font-body text-center text-[#0C2340] font-bold mt-4">- ${t.author}</p>
+                </div>
+            `;
+            slider.appendChild(slide);
+        });
+
+        function updateSlider() {
+            slider.style.transform = `translateX(-${currentSlide * 100}%)`;
+            playSound('floppy');
+        }
+
+        document.getElementById('next-btn').addEventListener('click', () => {
+            currentSlide = (currentSlide + 1) % testimonials.length;
+            updateSlider();
+        });
+
+        document.getElementById('prev-btn').addEventListener('click', () => {
+            currentSlide = (currentSlide - 1 + testimonials.length) % testimonials.length;
+            updateSlider();
+        });
+
+        // --- Easter Egg ---
+        const easterEgg = document.getElementById('easter-egg');
+        const tooltip = document.getElementById('easter-egg-tooltip');
+        easterEgg.addEventListener('mouseenter', () => {
+            const rect = easterEgg.getBoundingClientRect();
+            tooltip.style.left = `${rect.left + rect.width / 2 - tooltip.offsetWidth / 2}px`;
+            tooltip.style.top = `${rect.top - tooltip.offsetHeight - 5}px`;
+            tooltip.classList.remove('hidden');
+        });
+        easterEgg.addEventListener('mouseleave', () => {
+            tooltip.classList.add('hidden');
+        });
+    });
+    </script>
+</body>
+</html>
